@@ -15,7 +15,7 @@ public class Predator extends JavaPlugin {
 		configDefaults();		
 		registerListeners();
 		RandomEnderEggs ree = new RandomEnderEggs(this);
-		ree.removeAll();
+		ree.start();
 	}
 	
 	public void registerListeners() {

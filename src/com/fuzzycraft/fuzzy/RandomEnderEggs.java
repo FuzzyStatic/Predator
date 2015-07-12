@@ -45,10 +45,7 @@ public class RandomEnderEggs {
 	public void spawn() {
 		for (int i = 0; i < Defaults.AMOUNT; i++) {
 			Location loc = randomLocation();
-			Location eggLoc = loc;
-			
-			//Set egg location one Y block above random location.
-			eggLoc.setY(loc.getY()+1);
+			Location eggLoc = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
 			
 			if (loc.getBlock().getType() != Material.AIR && eggLoc.getBlock().getType() == Material.AIR) {
 				eggLoc.getBlock().setType(Material.DRAGON_EGG);
@@ -101,6 +98,7 @@ public class RandomEnderEggs {
 		new BukkitRunnable() {
         	
 			public void run() {
+				removeAll();
 				start();
 			}
 			
