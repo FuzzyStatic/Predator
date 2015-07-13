@@ -15,24 +15,26 @@ import com.fuzzycraft.fuzzy.constants.Defaults;
 public class PredatorManagement implements Listener {
 	
 	public Predator plugin;
-	private boolean running = false;
-	private PredatorLocation pl;
 	private World world;
+	private PredatorLocation pl;
 	private Material material;
-	private int minPlayers, materialAmount;
+	private int eventTime, lobbyTime, minPlayers, materialAmount;
+	private boolean running = false;
 	
 	/**
 	 * Constructor.
 	 * @param plugin
 	 */
-	public PredatorManagement(Predator plugin, World world, int minPlayers, int materialAmount) {
+	public PredatorManagement(Predator plugin, World world, int minPlayers) {
 		this.plugin = plugin;
 		this.world = this.plugin.getServer().getWorld(Defaults.WORLD);
 		this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
 		this.pl = new PredatorLocation(this.plugin);
-		this.material = Material.DRAGON_EGG;
-		this.minPlayers = 2;
-		this.materialAmount = materialAmount;
+		this.material = Defaults.MATERIAL;
+		this.eventTime = Defaults.MIN_PLAYERS;
+		this.lobbyTime = Defaults.MIN_PLAYERS;
+		this.minPlayers = Defaults.MIN_PLAYERS;
+		this.materialAmount = Defaults.MATERIAL_AMOUNT;
 	}
 	
 	
@@ -48,7 +50,7 @@ public class PredatorManagement implements Listener {
 		
 		int playersInWorld = this.world.getPlayers().size();
 		
-		if (!this.isRunning() && playersInWorld > this.minPlayers) {
+		if (!this.running && playersInWorld > this.minPlayers) {
 			this.start();
 		}
 	}
@@ -67,14 +69,14 @@ public class PredatorManagement implements Listener {
 				clean();
 			}
 			
-		}.runTaskLater(this.plugin, 30 * 20);
+		}.runTaskLater(this.plugin, this.eventTime * 20);
 	}
 	
 	/**
 	 * clean up for next event.
 	 */
 	public void clean() {
-		this.plugin.getServer().broadcastMessage(ChatColor.GREEN + "Eggs will despawn in 60 seconds");
+		this.plugin.getServer().broadcastMessage(ChatColor.GREEN + "Eggs will despawn in 30 seconds");
 		
 		new BukkitRunnable() {
         	
@@ -83,10 +85,6 @@ public class PredatorManagement implements Listener {
 				start();
 			}
 			
-		}.runTaskLater(this.plugin, 60 * 20);
-	}
-	
-	public boolean isRunning() {
-		return running;
+		}.runTaskLater(this.plugin, this.lobbyTime * 20);
 	}
 }
