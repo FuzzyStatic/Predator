@@ -3,6 +3,8 @@ package com.fuzzycraft.fuzzy;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.fuzzycraft.fuzzy.utilities.TeleportPlayers;
+
 /**
  * 
  * @author FuzzyStatic (fuzzy@fuzzycraft.com)
@@ -10,9 +12,14 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 
 public class Predator extends JavaPlugin {
-
+	
+	public static TeleportPlayers tp;
+	
 	public void onEnable() {		
-		configDefaults();		
+		configDefaults();	
+		
+		tp = new TeleportPlayers(this);
+		
 		registerListeners();
 	}
 	
