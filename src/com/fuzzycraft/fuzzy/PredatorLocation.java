@@ -54,8 +54,6 @@ public class PredatorLocation {
 					&& location.getBlock().getType() != Material.LAVA 
 					&& location.getBlock().getType() != Material.STATIONARY_LAVA
 					&& materialLocation.getBlock().getType() == Material.AIR) {
-				System.out.println(location.getBlock().getType().toString());
-				System.out.println(materialLocation.toString());
 				materialLocation.getBlock().setType(material);
 			} else {
 				i--;
