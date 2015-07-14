@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -76,13 +77,13 @@ public class PredatorManagement implements Listener {
 		Block block = event.getBlock();
 		Player player;
 		
-		if (event.getPlayer() != null) {
-			player = event.getPlayer();
-		} else {
+		if (this.gameTask == null || block.getWorld() != this.world) {
 			return;
 		}
 		
-		if (this.gameTask == null || block.getWorld() != this.world) {
+		if (event.getPlayer() != null) {
+			player = event.getPlayer();
+		} else {
 			return;
 		}
 		
@@ -124,6 +125,26 @@ public class PredatorManagement implements Listener {
         
         // Teleport player to random start point.
         player.teleport(this.pl.getRandomLocation());
+    }
+	
+	/**
+	 * Check for player respawn.
+	 * @param event
+	 */
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onPlayerRespawn(final PlayerRespawnEvent event) {
+        if (!this.running) {
+            return;
+        }
+        
+        // Respawn in game after death.
+		new BukkitRunnable() {
+        	
+			public void run() {
+				event.getPlayer().teleport(pl.getRandomLocation());
+			}
+			
+		}.runTaskLater(this.plugin, 20);
     }
 	
 	/**
