@@ -6,8 +6,8 @@ import org.bukkit.Material;
 public class Defaults {
 
 	public static final String GAME_WORLD = "predator-1";
-	public static final int GAME_X = 0;
-	public static final int GAME_Y = 40;
+	public static final int GAME_X = 1;
+	public static final int GAME_Y = 48;
 	public final static int GAME_Z = 0;
 	public static final int MAX_X = 48;
 	public static final int MAX_Y = 60;
@@ -22,7 +22,7 @@ public class Defaults {
 	public static final int MIN_PLAYERS = 2;
 	public static final int MATERIAL_AMOUNT = 20;
 	public static final int POINTS_EGG = 5;
-	public static final int POINTS_KILL = 1;
+	public static final int POINTS_KILL = 2;
 	
 	public static final String SPAWN_WORLD = "world";
 	public static final int SPAWN_X = 0;
