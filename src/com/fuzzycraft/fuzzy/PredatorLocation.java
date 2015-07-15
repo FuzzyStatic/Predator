@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import com.fuzzycraft.fuzzy.constants.Defaults;
 
@@ -21,7 +22,7 @@ public class PredatorLocation {
 	 */
 	public PredatorLocation(Predator plugin) {
 		this.plugin = plugin;
-		this.world = plugin.getServer().getWorld(Defaults.WORLD);
+		this.world = plugin.getServer().getWorld(Defaults.GAME_WORLD);
 		this.minX = Defaults.MIN_X;
 		this.maxX = Defaults.MAX_X;
 		this.minY = Defaults.MIN_Y;
@@ -48,7 +49,7 @@ public class PredatorLocation {
 	public void spawnMaterial(Material material, int amount) {
 		for (int i = 0; i < amount; i++) {
 			Location location = this.getRandomLocation();
-			Location materialLocation = new Location(location.getWorld(), location.getX(), location.getY()+1, location.getZ());
+			Location materialLocation = new Location(location.getWorld(), location.getX(), location.getY() + 1, location.getZ());
 			
 			if (location.getBlock().getType() != Material.AIR
 					&& location.getBlock().getType() != Material.LAVA 
@@ -59,6 +60,28 @@ public class PredatorLocation {
 				i--;
 			}
 		}
+	}
+	
+	/**
+	 * Spawn specified material at location.
+	 */
+	public void spawnPlayer(Player player) {
+		boolean teleport = true;
+		
+		do {
+			Location location = this.getRandomLocation();
+			Location firstLocation = new Location(location.getWorld(), location.getX(), location.getY() + 1, location.getZ());
+			Location secondLocation = new Location(location.getWorld(), location.getX(), location.getY() + 2, location.getZ());
+				
+			if (location.getBlock().getType() != Material.AIR
+					&& location.getBlock().getType() != Material.LAVA 
+					&& location.getBlock().getType() != Material.STATIONARY_LAVA
+					&& firstLocation.getBlock().getType() == Material.AIR
+					&& secondLocation.getBlock().getType() == Material.AIR) {
+				player.teleport(firstLocation);
+				teleport = false;
+			}
+        } while (teleport);
 	}
 	
 	/**

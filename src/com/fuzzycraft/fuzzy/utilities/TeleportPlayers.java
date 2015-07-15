@@ -12,6 +12,7 @@ public class TeleportPlayers {
 	
 	private Predator plugin;
 	public Location spawn;
+	public Location start;
 			
 	/**
 	 * Constructor.
@@ -23,6 +24,10 @@ public class TeleportPlayers {
 				Defaults.SPAWN_X, 
 				Defaults.SPAWN_Y, 
 				Defaults.SPAWN_Z);
+		this.start = new Location(this.plugin.getServer().getWorld(Defaults.GAME_WORLD), 
+				Defaults.GAME_X, 
+				Defaults.GAME_Y, 
+				Defaults.GAME_Z);
 	}
 	
 	/**
@@ -33,5 +38,13 @@ public class TeleportPlayers {
 		for (Player player : players) {
 			player.teleport(this.spawn);
 		}
+	}
+	
+	/**
+	 * Teleport players to spawn.
+	 * @param players
+	 */
+	public void teleportPlayerToStart(Player player) {
+		player.teleport(this.start);
 	}
 }

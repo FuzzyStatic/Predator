@@ -22,7 +22,7 @@ public class Predator extends JavaPlugin {
 		configDefaults();	
 		
 		tp = new TeleportPlayers(this);
-		this.pm = new PredatorManagement(this, this.getServer().getWorld(Defaults.WORLD));
+		this.pm = new PredatorManagement(this, this.getServer().getWorld(Defaults.GAME_WORLD));
 		
 		registerListeners();
 	}

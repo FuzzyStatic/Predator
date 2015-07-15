@@ -28,7 +28,7 @@ public class PredatorManagement implements Listener {
 	private PredatorLocation pl;
 	private Material material;
 	private int eventTime, finishTime, lobbyTime, minPlayers, materialAmount, pointsEgg, pointsKill;
-	private BukkitTask gameTask;
+	private BukkitTask startTask;
 	private boolean running = false;
 	private HashMap<Player, Integer> playerEggs = new HashMap<Player, Integer>();
 	private HashMap<Player, Integer> playerKills = new HashMap<Player, Integer>();
@@ -57,8 +57,17 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
-		if (this.running || event.getPlayer().getWorld() != this.world) {
+		Player player = event.getPlayer();
+		
+		if (this.running || player.getWorld() != this.world) {
 			return;
+		}
+		
+		if (this.startTask == null) {
+			Predator.tp.teleportPlayerToStart(player);
+		} else {
+			latePlayer(player);
+			this.pl.spawnPlayer(player);
 		}
 		
 		int playersInWorld = this.world.getPlayers().size();
@@ -77,7 +86,7 @@ public class PredatorManagement implements Listener {
 		Block block = event.getBlock();
 		Player player;
 		
-		if (this.gameTask == null || block.getWorld() != this.world) {
+		if (this.startTask == null || block.getWorld() != this.world) {
 			return;
 		}
 		
@@ -99,7 +108,7 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onEntityDeath(EntityDeathEvent event) {
-        if (this.gameTask == null || !(event.getEntity() instanceof Player)) {
+        if (this.startTask == null || !(event.getEntity() instanceof Player)) {
             return;
         }
         
@@ -141,52 +150,76 @@ public class PredatorManagement implements Listener {
 		new BukkitRunnable() {
         	
 			public void run() {
-				event.getPlayer().teleport(pl.getRandomLocation());
+				pl.spawnPlayer(event.getPlayer());
 			}
 			
-		}.runTaskLater(this.plugin, 20);
+		}.runTaskLater(this.plugin, 1);
     }
+	
+	/**
+	 * Display start timer.
+	 * @param player
+	 * @param cooldownTime
+	 */
+	public void startTimer(int timer) {
+		if (timer <= 0) {
+			cleanHashMap(playerEggs);
+			cleanHashMap(playerKills);
+			pl.spawnMaterial(material, materialAmount);
+			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " Game on!");
+				
+			// Teleport players to random start point.
+			for (Player player : world.getPlayers()) {
+				pl.spawnPlayer(player);
+			}
+			
+			finish();
+			return;
+		}
+		
+		if (timer <= 5) {
+			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " " + timer);
+		}
+				
+		// Decrement timer.
+		final int newTimer = --timer;
+		
+		// Create the task anonymously to decrement timer.
+		this.startTask =  new BukkitRunnable() {
+		      
+			public void run() {
+				startTimer(newTimer);
+			}
+				
+		}.runTaskLater(this.plugin, 20);
+	}
 	
 	/**
 	 * Start the event.
 	 */
 	public void start() {
+		this.running = true;
 		this.pl.removeAll(material);
-		
-		this.sendMassMessage(this.world.getPlayers(), ChatColor.GREEN + "Game will start in " + this.lobbyTime + " seconds!");
-		
-		this.gameTask = new BukkitRunnable() {
-        	
-			public void run() {
-				cleanHashMap(playerEggs);
-				cleanHashMap(playerKills);
-				running = true;
-				pl.spawnMaterial(material, materialAmount);
-				sendMassMessage(world.getPlayers(), ChatColor.GREEN + "Game on!");
-				
-				// Teleport players to random start point.
-				for (Player player : world.getPlayers()) {
-					player.teleport(pl.getRandomLocation());
-				}
-				
-				finish();
-			}
-			
-		}.runTaskLater(this.plugin, this.lobbyTime * 20);
+		this.sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + "Game will start in " + this.lobbyTime + " seconds!");		
+		this.startTimer(this.lobbyTime);
 	}
 	
 	/**
 	 * Finish event after evenTime and name winners.
 	 */
 	public void finish() {
-		System.out.println(this.playerEggs);
-		System.out.println(this.playerKills);
-
 		new BukkitRunnable() {
         	
 			public void run() {
 				sendMassMessage(world.getPlayers(), ChatColor.GREEN + "Game is over!");
 				sendMassMessage(world.getPlayers(), ChatColor.GREEN + "Thanks for playing!");
+				
+				// Show everyone their score
+				for (Player player : world.getPlayers()) {
+					int score = (playerEggs.get(player) * pointsEgg) + (playerKills.get(player) * pointsKill);
+					player.sendMessage("Your score is " + score + "!");
+				}
+				
 				clean();
 			}
 			
@@ -218,6 +251,20 @@ public class PredatorManagement implements Listener {
 		
 		for (Player player : this.world.getPlayers()) {
 			map.put(player, 0);
+		}
+	}
+	
+	/**
+	 * Set all keys of player to values of 0.
+	 * @param map
+	 */
+	public void latePlayer(Player player) {
+		if (this.playerEggs.get(player) == null) {
+			this.playerEggs.put(player, 0);
+		}
+		
+		if (this.playerKills.get(player) == null) {
+			this.playerKills.put(player, 0);
 		}
 	}
 	
