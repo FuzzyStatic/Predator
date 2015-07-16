@@ -13,13 +13,12 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -33,22 +32,26 @@ public class PredatorManagement implements Listener {
 	private PredatorLocation pl;
 	private Material material;
 	private int eventTime, finishTime, lobbyTime, minPlayers, materialAmount, materialRemaining, pointsMaterial, pointsKill;
-	private BukkitTask startTask;
+	private boolean startTask, finishTask;
 	private boolean running = false;
+	private List<Player> scoreboardPlayers;
 	private HashMap<Player, Integer> playerMaterial = new HashMap<Player, Integer>();
 	private HashMap<Player, Integer> playerKills = new HashMap<Player, Integer>();
-	
-	private static final ItemStack DIAMOND_SWORD_1 = new ItemStack(Material.DIAMOND_SWORD, 1);
-	private static final ItemStack DIAMOND_PICKAXE_1 = new ItemStack(Material.DIAMOND_PICKAXE, 1);
-	
+		
 	/**
 	 * Constructor.
 	 * @param plugin
 	 */
-	public PredatorManagement(Predator plugin) {
+	public PredatorManagement(final Predator plugin) {
 		this.plugin = plugin;
-		this.world = this.plugin.getServer().getWorld(Defaults.GAME_WORLD);
 		this.pl = new PredatorLocation(this.plugin);
+		new BukkitRunnable() {
+        	
+			public void run() {
+				world = plugin.getServer().getWorld(Defaults.GAME_WORLD);
+			}
+			
+		}.runTaskLater(this.plugin, 1);
 		this.material = Defaults.MATERIAL;
 		this.eventTime = Defaults.EVENT_TIME;
 		this.finishTime = Defaults.FINISH_TIME;
@@ -60,36 +63,38 @@ public class PredatorManagement implements Listener {
 	}
 	
 	/**
+	 * Set this.world on world load event (for non-default worlds).
+	 * @param event
+	 */
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onWorldLoad(WorldLoadEvent event) {
+		if (event.getWorld().getName() == Defaults.GAME_WORLD) {
+			this.world = this.plugin.getServer().getWorld(Defaults.GAME_WORLD);
+		}
+	}
+	
+	/**
 	 * Create board for joining player.
 	 * @param event
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
 		Player player = event.getPlayer();
-		
-		System.out.println(player);
-		System.out.println(this.running);
-		System.out.println(this.world);
-		System.out.println(player.getWorld());
-		
+				
+		System.out.println("THIS SHOULD NOT BE NULL -------->" + this.world);
 		if (this.running || player.getWorld() != this.world) {
-			System.out.println("I shouldn't be here");
 			return;
 		}
 		
 		System.out.println("I made it");
 		
-		if (this.startTask == null) {
+		if (!this.startTask) {
 			Predator.tp.teleportPlayerToStart(player);
 		} else {
-			latePlayer(player);
+			this.latePlayer(player);
 		}
-		
-		
+				
 		int playersInWorld = this.world.getPlayers().size();
-		
-		System.out.println(playersInWorld);
-		System.out.println(this.minPlayers);
 				
 		if (playersInWorld >= this.minPlayers) {
 			this.start();
@@ -97,33 +102,32 @@ public class PredatorManagement implements Listener {
 	}
 	
 	/**
-	 * Create check for material break.
+	 * Give catcher random item when he catches catchee.
 	 * @param event
 	 */
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onBlockBreak(BlockBreakEvent event) {
-		Block block = event.getBlock();
-		Player player;
-		
-		if (this.startTask == null || block.getWorld() != this.world) {
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		if (event.getClickedBlock() == null) {
 			return;
 		}
 		
-		if (event.getPlayer() != null) {
-			player = event.getPlayer();
-		} else {
+		Block block = event.getClickedBlock();
+		Player player = event.getPlayer();
+		
+		if (!this.finishTask || block.getWorld() != this.world) {
 			return;
 		}
-		
+
 		// Give block breaker a block point.
 		if (block.getType() == this.material) {
+			block.setType(Material.AIR);
 			this.playerMaterial.put(player, this.playerMaterial.get(player) + 1);
 			this.materialRemaining--;
 		}
 		
 		// Update scoreboard.
         for (Player participants : world.getPlayers()) {
-        	setPlayerBoard(participants);
+        	this.setPlayerBoard(participants);
 		}
 	}
 	
@@ -133,7 +137,7 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityDeath(EntityDeathEvent event) {
-        if (this.startTask == null || !(event.getEntity() instanceof Player)) {
+        if (!this.finishTask || !(event.getEntity() instanceof Player)) {
             return;
         }
         
@@ -152,16 +156,17 @@ public class PredatorManagement implements Listener {
         	return;
         }
         
+        // Eliminate drops
+        event.getDrops().clear();
+        
         // Give killer a kill.
         if (killer != null && killer != event.getEntity()) {
         	this.playerKills.put(killer, this.playerKills.get(killer) + 1);
         }
-        
-        setupPlayer(player);
-        
+                
         // Update scoreboard.
         for (Player participants : world.getPlayers()) {
-        	setPlayerBoard(participants);
+        	this.setPlayerBoard(participants);
 		}
     }
 	
@@ -171,15 +176,30 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
-        if (!this.running) {
-            return;
+		final Player player = event.getPlayer();
+		
+		if (!this.running) {
+			if (player.getWorld() != this.world) {
+				return;
+			}
+			
+			new BukkitRunnable() {
+            	
+    			public void run() {
+    	        	Predator.tp.teleportPlayerToStart(player);
+    			}
+    			
+    		}.runTaskLater(this.plugin, 1);
+    		
+        	return;
         }
         
         // Respawn in game after death.
 		new BukkitRunnable() {
         	
 			public void run() {
-				pl.spawnPlayer(event.getPlayer());
+				pl.spawnPlayer(player);
+		        setupPlayer(player);
 			}
 			
 		}.runTaskLater(this.plugin, 1);
@@ -196,13 +216,15 @@ public class PredatorManagement implements Listener {
 			cleanHashMap(playerKills);
 			pl.spawnMaterial(material, materialAmount);
 			this.materialRemaining = this.materialAmount;
-			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " Game on!");
+			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.GREEN + " Game on!");
 				
-			for (Player player : world.getPlayers()) {
-				setupPlayer(player);
+			for (Player player : this.world.getPlayers()) {
+				this.scoreboardPlayers = this.world.getPlayers();
+				this.setupPlayer(player);
 			}
 			
-			finish();
+			this.startTask = false;
+			this.finish();
 			return;
 		}
 		
@@ -213,11 +235,19 @@ public class PredatorManagement implements Listener {
 		// Decrement timer.
 		final int newTimer = --timer;
 		
-		// Create the task anonymously to decrement timer.
-		this.startTask =  new BukkitRunnable() {
+		// Create the task anonymously with decremented timer.
+		new BukkitRunnable() {
 		      
 			public void run() {
-				startTimer(newTimer);
+				int playersInWorld = world.getPlayers().size();
+				
+				if (playersInWorld >= minPlayers) {
+					startTimer(newTimer);
+				} else {
+					startTask = false;
+					running = false;
+					sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " " + ChatColor.GREEN + "Not enough players.");
+				}
 			}
 				
 		}.runTaskLater(this.plugin, 20);
@@ -229,7 +259,8 @@ public class PredatorManagement implements Listener {
 	public void start() {
 		this.running = true;
 		this.pl.removeAll(material);
-		this.sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + " Game will start in " + this.lobbyTime + " seconds!");		
+		this.sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + " Game will start in " + ChatColor.GREEN + this.lobbyTime + " seconds!");		
+		this.startTask = true;
 		this.startTimer(this.lobbyTime);
 	}
 	
@@ -247,11 +278,12 @@ public class PredatorManagement implements Listener {
 				player.sendMessage(Defaults.GAME_TAG + " Your score is " + ChatColor.GREEN + getPlayerScore(player) + "!");
 			}
 			
-			clean();
+			this.finishTask = false;
+			this.clean();
 			return;
 		}
 		
-		if (timer == 10) {
+		if (timer == 15) {
 			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " Game ends in " + ChatColor.GREEN + timer + " seconds!");
 		}
 		
@@ -276,6 +308,7 @@ public class PredatorManagement implements Listener {
 	 * Finish event after evenTime and name winners.
 	 */
 	public void finish() {
+		this.finishTask = true;
 		this.finishTimer(this.eventTime);
 	}
 	
@@ -311,12 +344,11 @@ public class PredatorManagement implements Listener {
 	 * Setup the player when he joins the game. Give full health, give items, set scoreboard.
 	 */
 	public void setupPlayer(Player player) {
+		player.setFireTicks(0);
 		player.setHealth((double) player.getMaxHealth());
 		player.getInventory().clear();
-		player.getInventory().addItem(DIAMOND_SWORD_1);
-		player.getInventory().addItem(DIAMOND_PICKAXE_1);
 		this.pl.spawnPlayer(player);
-		setPlayerBoard(player);
+		this.setPlayerBoard(player);
 	}
 	
 	/**
@@ -332,7 +364,8 @@ public class PredatorManagement implements Listener {
 			this.playerKills.put(player, 0);
 		}
 		
-		setupPlayer(player);
+		this.scoreboardPlayers.add(player);
+		this.setupPlayer(player);
 	}
 	
 	/**
@@ -351,9 +384,9 @@ public class PredatorManagement implements Listener {
 		Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
 		Objective objective = board.registerNewObjective("timers", "dummy");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-		objective.setDisplayName("Eggs " + this.materialRemaining + "/" + this.materialAmount);
+		objective.setDisplayName(ChatColor.DARK_PURPLE + "Eggs Left: " + ChatColor.GREEN + this.materialRemaining + ChatColor.WHITE + "/" + ChatColor.DARK_GREEN + this.materialAmount);
 		
-		for (Player participant : this.world.getPlayers()) {
+		for (Player participant : this.scoreboardPlayers) {
 			objective.getScore(participant.getName().toString()).setScore(getPlayerScore(participant));
 		}
 		
