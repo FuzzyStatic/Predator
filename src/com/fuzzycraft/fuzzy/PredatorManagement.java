@@ -42,16 +42,10 @@ public class PredatorManagement implements Listener {
 	 * Constructor.
 	 * @param plugin
 	 */
-	public PredatorManagement(final Predator plugin) {
+	public PredatorManagement(final Predator plugin, World world) {
 		this.plugin = plugin;
 		this.pl = new PredatorLocation(this.plugin);
-		new BukkitRunnable() {
-        	
-			public void run() {
-				world = plugin.getServer().getWorld(Defaults.GAME_WORLD);
-			}
-			
-		}.runTaskLater(this.plugin, 1);
+		this.world = world;
 		this.material = Defaults.MATERIAL;
 		this.eventTime = Defaults.EVENT_TIME;
 		this.finishTime = Defaults.FINISH_TIME;

@@ -4,15 +4,14 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.ScoreboardManager;
 
-import com.fuzzycraft.fuzzy.Predator;
 import com.fuzzycraft.fuzzy.constants.Defaults;
 
 public class TeleportPlayers {
 	
-	private Predator plugin;
 	public Location spawn;
 	public Location start;
 	
@@ -22,13 +21,12 @@ public class TeleportPlayers {
 	 * Constructor.
 	 * @param plugin
 	 */
-	public TeleportPlayers(Predator plugin) {
-		this.plugin = plugin;
-		this.spawn = new Location(this.plugin.getServer().getWorld(Defaults.SPAWN_WORLD), 
+	public TeleportPlayers(World spawnWold, World gameWold) {
+		this.spawn = new Location(spawnWold, 
 				Defaults.SPAWN_X, 
 				Defaults.SPAWN_Y, 
 				Defaults.SPAWN_Z);
-		this.start = new Location(this.plugin.getServer().getWorld(Defaults.GAME_WORLD), 
+		this.start = new Location(gameWold, 
 				Defaults.GAME_X, 
 				Defaults.GAME_Y, 
 				Defaults.GAME_Z);
