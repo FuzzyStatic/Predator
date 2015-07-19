@@ -13,6 +13,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -191,6 +192,17 @@ public class PredatorManagement implements Listener {
     }
 	
 	/**
+	 * Prevent damage when event is not running.
+	 * @param event
+	 */
+	@EventHandler (priority = EventPriority.HIGHEST)
+    public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player && !this.finishTask) {
+            event.setCancelled(true);
+        }
+    }
+	
+	/**
 	 * Display start timer.
 	 * @param player
 	 * @param cooldownTime
@@ -260,7 +272,8 @@ public class PredatorManagement implements Listener {
 			
 			// Show everyone their score
 			for (Player player : world.getPlayers()) {
-				player.sendMessage(Defaults.GAME_TAG + " Your score is " + ChatColor.GREEN + getPlayerScore(player) + "!");
+				player.sendMessage(Defaults.GAME_TAG + " Your score is " + ChatColor.GREEN + this.getPlayerScore(player) + "!");
+				player.sendMessage(Defaults.GAME_TAG + " Winner is " + ChatColor.GREEN + this.getWinner() + "!");
 			}
 			
 			this.finishTask = false;
@@ -269,11 +282,11 @@ public class PredatorManagement implements Listener {
 		}
 		
 		if (timer == 15) {
-			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " Game ends in " + ChatColor.GREEN + timer + " seconds!");
+			sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + " Game ends in " + ChatColor.GREEN + timer + " seconds!");
 		}
 		
 		if (timer <= 5) {
-			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " " + ChatColor.GREEN + timer);
+			sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + " " + ChatColor.GREEN + timer);
 		}
 				
 		// Decrement timer.
@@ -376,6 +389,29 @@ public class PredatorManagement implements Listener {
 		}
 		
 		player.setScoreboard(board);
+	}
+	
+	/**
+	 * Return winner of the game.
+	 * @return
+	 */
+	public Player getWinner() {
+		Player winner = null;
+		int winnerScore = 0;
+		
+		for (Player player : this.world.getPlayers()) {
+			if ((int) getPlayerScore(player) > winnerScore 
+					|| (
+							(int) getPlayerScore(player) == winnerScore 
+							&& this.playerMaterial.get(player) > this.playerMaterial.get(winner)
+						)
+				) {
+				winnerScore = getPlayerScore(player);
+				winner = player;
+			}
+		}
+		
+		return winner;
 	}
 	
 	/**
