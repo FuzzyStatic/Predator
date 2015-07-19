@@ -21,12 +21,12 @@ public class TeleportPlayers {
 	 * Constructor.
 	 * @param plugin
 	 */
-	public TeleportPlayers(World spawnWold, World gameWold) {
-		this.spawn = new Location(spawnWold, 
+	public TeleportPlayers(World spawnWorld, World gameWorld) {
+		this.spawn = new Location(spawnWorld, 
 				Defaults.SPAWN_X, 
 				Defaults.SPAWN_Y, 
 				Defaults.SPAWN_Z);
-		this.start = new Location(gameWold, 
+		this.start = new Location(gameWorld, 
 				Defaults.GAME_X, 
 				Defaults.GAME_Y, 
 				Defaults.GAME_Z);

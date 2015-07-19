@@ -6,7 +6,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fuzzycraft.fuzzy.constants.Defaults;
-import com.fuzzycraft.fuzzy.utilities.TeleportPlayers;
 
 /**
  * 
@@ -16,20 +15,22 @@ import com.fuzzycraft.fuzzy.utilities.TeleportPlayers;
 
 public class Predator extends JavaPlugin {
 	
-	public static TeleportPlayers tp;
+	public static World spawnWorld;
 	
 	private Predator plugin = this;
 	private PredatorManagement pm;
-	private World spawnWorld, gameWorld;
 	
 	public void onEnable() {		
 		new BukkitRunnable() {
         	
 			public void run() {
 				spawnWorld = getServer().getWorld(Defaults.SPAWN_WORLD);
-				gameWorld = getServer().getWorld(Defaults.GAME_WORLD);
-				tp = new TeleportPlayers(spawnWorld, gameWorld);
-				pm = new PredatorManagement(plugin, gameWorld);
+				
+				for (String world : Defaults.GAME_WORLDS) {
+					World gameWorld = getServer().getWorld(world);
+					pm = new PredatorManagement(plugin, gameWorld);
+				}
+				
 				registerListeners();
 			}
 			

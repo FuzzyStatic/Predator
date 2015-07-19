@@ -20,9 +20,9 @@ public class PredatorLocation {
 	 * Constructor.
 	 * @param plugin
 	 */
-	public PredatorLocation(Predator plugin) {
+	public PredatorLocation(Predator plugin, World world) {
 		this.plugin = plugin;
-		this.world = plugin.getServer().getWorld(Defaults.GAME_WORLD);
+		this.world = world;
 		this.minX = Defaults.MIN_X;
 		this.maxX = Defaults.MAX_X;
 		this.minY = Defaults.MIN_Y;
@@ -76,6 +76,7 @@ public class PredatorLocation {
 			if (location.getBlock().getType() != Material.AIR
 					&& location.getBlock().getType() != Material.LAVA 
 					&& location.getBlock().getType() != Material.STATIONARY_LAVA
+					&& location.getBlock().getType() != Material.LADDER
 					&& firstLocation.getBlock().getType() == Material.AIR
 					&& secondLocation.getBlock().getType() == Material.AIR) {
 				player.teleport(firstLocation);

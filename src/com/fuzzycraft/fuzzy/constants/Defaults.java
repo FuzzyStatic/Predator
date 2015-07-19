@@ -5,7 +5,7 @@ import org.bukkit.Material;
 
 public class Defaults {
 
-	public static final String GAME_WORLD = "predator-1";
+	public static final String[] GAME_WORLDS = {"predator-1", "predator-1", "predator-1", "predator-1"};
 	public static final int GAME_X = 1;
 	public static final int GAME_Y = 48;
 	public final static int GAME_Z = 0;
@@ -26,7 +26,7 @@ public class Defaults {
 	
 	public static final String SPAWN_WORLD = "world";
 	public static final int SPAWN_X = 0;
-	public static final int SPAWN_Y = 20;
+	public static final int SPAWN_Y = 65;
 	public static final int SPAWN_Z = 0;
 	
 	public static final String GAME_TAG = ChatColor.DARK_RED + "[PREDATOR]";

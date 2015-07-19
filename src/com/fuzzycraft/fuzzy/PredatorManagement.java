@@ -17,19 +17,20 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.fuzzycraft.fuzzy.constants.Defaults;
+import com.fuzzycraft.fuzzy.utilities.TeleportPlayers;
 
 public class PredatorManagement implements Listener {
 	
 	public Predator plugin;
 	private World world;
 	private PredatorLocation pl;
+	private TeleportPlayers tp;
 	private Material material;
 	private int eventTime, finishTime, lobbyTime, minPlayers, materialAmount, materialRemaining, pointsMaterial, pointsKill;
 	private boolean startTask, finishTask;
@@ -44,8 +45,9 @@ public class PredatorManagement implements Listener {
 	 */
 	public PredatorManagement(final Predator plugin, World world) {
 		this.plugin = plugin;
-		this.pl = new PredatorLocation(this.plugin);
 		this.world = world;
+		this.pl = new PredatorLocation(this.plugin, this.world);
+		this.tp = new TeleportPlayers(Predator.spawnWorld, this.world);
 		this.material = Defaults.MATERIAL;
 		this.eventTime = Defaults.EVENT_TIME;
 		this.finishTime = Defaults.FINISH_TIME;
@@ -54,17 +56,6 @@ public class PredatorManagement implements Listener {
 		this.materialAmount = Defaults.MATERIAL_AMOUNT;
 		this.pointsMaterial = Defaults.POINTS_EGG;
 		this.pointsKill = Defaults.POINTS_KILL;
-	}
-	
-	/**
-	 * Set this.world on world load event (for non-default worlds).
-	 * @param event
-	 */
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onWorldLoad(WorldLoadEvent event) {
-		if (event.getWorld().getName() == Defaults.GAME_WORLD) {
-			this.world = this.plugin.getServer().getWorld(Defaults.GAME_WORLD);
-		}
 	}
 	
 	/**
@@ -83,7 +74,7 @@ public class PredatorManagement implements Listener {
 		System.out.println("I made it");
 		
 		if (!this.startTask) {
-			Predator.tp.teleportPlayerToStart(player);
+			this.tp.teleportPlayerToStart(player);
 		} else {
 			this.latePlayer(player);
 		}
@@ -180,7 +171,7 @@ public class PredatorManagement implements Listener {
 			new BukkitRunnable() {
             	
     			public void run() {
-    	        	Predator.tp.teleportPlayerToStart(player);
+    				tp.teleportPlayerToStart(player);
     			}
     			
     		}.runTaskLater(this.plugin, 1);
@@ -314,7 +305,7 @@ public class PredatorManagement implements Listener {
         	
 			public void run() {
 				sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " You are being teleported back to the hub...!");
-				Predator.tp.teleportPlayersToSpawn(world.getPlayers());
+				tp.teleportPlayersToSpawn(world.getPlayers());
 				pl.removeAll(material);
 				running = false;
 			}
