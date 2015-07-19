@@ -364,6 +364,10 @@ public class PredatorManagement implements Listener {
 		
 		this.scoreboardPlayers.add(player);
 		this.setupPlayer(player);
+		
+		for (Player participant : this.world.getPlayers()) {
+			this.setPlayerBoard(participant);
+		}
 	}
 	
 	/**

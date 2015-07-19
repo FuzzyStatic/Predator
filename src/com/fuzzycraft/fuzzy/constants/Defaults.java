@@ -29,5 +29,5 @@ public class Defaults {
 	public static final int SPAWN_Y = 65;
 	public static final int SPAWN_Z = 0;
 	
-	public static final String GAME_TAG = ChatColor.DARK_RED + "[PREDATOR]";
+	public static final String GAME_TAG = ChatColor.WHITE + "[" + ChatColor.DARK_RED + "PREDATOR" + ChatColor.WHITE + "]";
 }
