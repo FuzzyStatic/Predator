@@ -26,6 +26,12 @@ import org.bukkit.scoreboard.Scoreboard;
 import com.fuzzycraft.fuzzy.constants.Defaults;
 import com.fuzzycraft.fuzzy.utilities.TeleportPlayers;
 
+/**
+ * 
+ * @author FuzzyStatic (fuzzy@fuzzycraft.com)
+ *
+ */
+
 public class PredatorManagement implements Listener {
 	
 	public Predator plugin;

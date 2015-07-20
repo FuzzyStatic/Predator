@@ -3,6 +3,12 @@ package com.fuzzycraft.fuzzy.constants;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
+/**
+ * 
+ * @author FuzzyStatic (fuzzy@fuzzycraft.com)
+ *
+ */
+
 public class Defaults {
 
 	public static final String[] GAME_WORLDS = {"predator-1", "predator-1", "predator-1", "predator-1"};

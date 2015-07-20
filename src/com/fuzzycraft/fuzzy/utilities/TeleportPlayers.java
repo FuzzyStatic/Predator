@@ -10,6 +10,12 @@ import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.fuzzycraft.fuzzy.constants.Defaults;
 
+/**
+ * 
+ * @author FuzzyStatic (fuzzy@fuzzycraft.com)
+ *
+ */
+
 public class TeleportPlayers {
 	
 	public Location spawn;

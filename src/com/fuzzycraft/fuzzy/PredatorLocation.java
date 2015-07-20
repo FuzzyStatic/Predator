@@ -10,6 +10,12 @@ import org.bukkit.entity.Player;
 
 import com.fuzzycraft.fuzzy.constants.Defaults;
 
+/**
+ * 
+ * @author FuzzyStatic (fuzzy@fuzzycraft.com)
+ *
+ */
+
 public class PredatorLocation {
 	
 	public Predator plugin;
