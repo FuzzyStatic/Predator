@@ -249,7 +249,7 @@ public class PredatorManagement implements Listener {
 				} else {
 					startTask = false;
 					running = false;
-					sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " " + ChatColor.GREEN + "Not enough players.");
+					sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " " + ChatColor.GREEN + "Not enough players.");
 				}
 			}
 				
@@ -262,7 +262,7 @@ public class PredatorManagement implements Listener {
 	public void start() {
 		this.running = true;
 		this.pl.removeAll(material);
-		this.sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + " Game will start in " + ChatColor.GREEN + this.lobbyTime + " seconds!");		
+		this.sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game will start in " + ChatColor.GREEN + this.lobbyTime + " seconds!");		
 		this.startTask = true;
 		this.startTimer(this.lobbyTime);
 	}
@@ -274,12 +274,12 @@ public class PredatorManagement implements Listener {
 	 */
 	public void finishTimer(int timer) {
 		if (timer <= 0) {
-			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " Game is over! Thanks for playing!");
+			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
 			
 			// Show everyone their score
 			for (Player player : world.getPlayers()) {
-				player.sendMessage(Defaults.GAME_TAG + " Your score is " + ChatColor.GREEN + this.getPlayerScore(player) + "!");
-				player.sendMessage(Defaults.GAME_TAG + " Winner is " + ChatColor.GREEN + this.getWinner() + "!");
+				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Your score is " + ChatColor.GREEN + this.getPlayerScore(player) + "!");
+				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + this.getWinner() + "!");
 			}
 			
 			this.finishTask = false;
@@ -287,12 +287,12 @@ public class PredatorManagement implements Listener {
 			return;
 		}
 		
-		if (timer == 15) {
-			sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + " Game ends in " + ChatColor.GREEN + timer + " seconds!");
+		if (timer == 15 || timer == 30 || timer == 60 || timer == 90) {
+			sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game ends in " + ChatColor.GREEN + timer + " seconds!");
 		}
 		
 		if (timer <= 5) {
-			sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + " " + ChatColor.GREEN + timer);
+			sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " " + ChatColor.GREEN + timer);
 		}
 				
 		// Decrement timer.
@@ -323,7 +323,7 @@ public class PredatorManagement implements Listener {
 		new BukkitRunnable() {
         	
 			public void run() {
-				sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + " You are being teleported back to the hub...!");
+				sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " You are being teleported back to the hub...");
 				tp.teleportPlayersToSpawn(world.getPlayers());
 				pl.removeAll(material);
 				running = false;
@@ -405,7 +405,7 @@ public class PredatorManagement implements Listener {
 	 * Return winner of the game.
 	 * @return
 	 */
-	public Player getWinner() {
+	public String getWinner() {
 		Player winner = null;
 		int winnerScore = 0;
 		
@@ -421,7 +421,7 @@ public class PredatorManagement implements Listener {
 			}
 		}
 		
-		return winner;
+		return winner.getDisplayName();
 	}
 	
 	/**
