@@ -20,7 +20,7 @@ public class Predator extends JavaPlugin {
 	private Predator plugin = this;
 	private PredatorManagement pm;
 	
-	public void onEnable() {		
+	public void onEnable() {				
 		new BukkitRunnable() {
         	
 			public void run() {
@@ -28,17 +28,12 @@ public class Predator extends JavaPlugin {
 				
 				for (String world : Defaults.GAME_WORLDS) {
 					World gameWorld = getServer().getWorld(world);
-					pm = new PredatorManagement(plugin, gameWorld);
+					PredatorManagement pm = new PredatorManagement(plugin, gameWorld);
+					PluginManager manager = getServer().getPluginManager();
+					manager.registerEvents(pm, plugin);
 				}
-				
-				registerListeners();
 			}
 			
 		}.runTaskLater(this, 1);
-	}
-	
-	public void registerListeners() {
-		PluginManager manager = getServer().getPluginManager();
-		manager.registerEvents(this.pm, this);
 	}
 }

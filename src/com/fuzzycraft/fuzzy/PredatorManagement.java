@@ -73,13 +73,10 @@ public class PredatorManagement implements Listener {
 	public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
 		Player player = event.getPlayer();
 				
-		System.out.println("THIS SHOULD NOT BE NULL -------->" + this.world);
 		if (this.running || player.getWorld() != this.world) {
 			return;
 		}
-		
-		System.out.println("I made it");
-		
+				
 		if (!this.startTask) {
 			this.tp.teleportPlayerToStart(player);
 		} else {
@@ -118,7 +115,7 @@ public class PredatorManagement implements Listener {
 		}
 		
 		// Update scoreboard.
-        for (Player participants : world.getPlayers()) {
+        for (Player participants : this.world.getPlayers()) {
         	this.setPlayerBoard(participants);
 		}
 	}
@@ -129,7 +126,7 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityDeath(EntityDeathEvent event) {
-        if (!this.finishTask || !(event.getEntity() instanceof Player)) {
+        if (!this.finishTask || !(event.getEntity() instanceof Player) || event.getEntity().getWorld() != this.world) {
             return;
         }
         
@@ -152,12 +149,12 @@ public class PredatorManagement implements Listener {
         event.getDrops().clear();
         
         // Give killer a kill.
-        if (killer != null && killer != event.getEntity()) {
+        if (killer != null && killer != event.getEntity() && killer.getWorld() == this.world) {
         	this.playerKills.put(killer, this.playerKills.get(killer) + 1);
         }
                 
         // Update scoreboard.
-        for (Player participants : world.getPlayers()) {
+        for (Player participants : this.world.getPlayers()) {
         	this.setPlayerBoard(participants);
 		}
     }
@@ -170,7 +167,7 @@ public class PredatorManagement implements Listener {
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
 		final Player player = event.getPlayer();
 		
-		if (!this.running) {
+		if (!this.running) {		
 			if (player.getWorld() != this.world) {
 				return;
 			}
@@ -185,12 +182,15 @@ public class PredatorManagement implements Listener {
     		
         	return;
         }
+		
+		if (player.getWorld() != this.world) {
+			return;
+		}
         
         // Respawn in game after death.
 		new BukkitRunnable() {
         	
 			public void run() {
-				pl.spawnPlayer(player);
 		        setupPlayer(player);
 			}
 			
@@ -203,7 +203,7 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player && !this.finishTask) {
+        if (event.getDamager() instanceof Player && !this.finishTask && event.getDamager().getWorld() == this.world) {
             event.setCancelled(true);
         }
     }
