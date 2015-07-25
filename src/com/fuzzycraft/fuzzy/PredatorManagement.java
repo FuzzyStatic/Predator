@@ -171,7 +171,7 @@ public class PredatorManagement implements Listener {
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
 		final Player player = event.getPlayer();
 		
-		if (!this.active) {		
+		if (this.status != Status.RUNNING) {		
 			if (player.getWorld() != this.world) {
 				return;
 			}
