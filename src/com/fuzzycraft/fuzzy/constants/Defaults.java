@@ -22,9 +22,9 @@ public class Defaults {
 	public static final int MIN_Y = 32;
 	public static final int MIN_Z = -48;
 	public static final Material MATERIAL = Material.DRAGON_EGG; // In seconds
-	public static final int EVENT_TIME = 120; // In seconds
-	public static final int FINISH_TIME = 10; // In seconds
-	public static final int LOBBY_TIME = 15; // In seconds
+	public static final int RUNNING_TIME = 120; // In seconds
+	public static final int CLEANING_TIME = 10; // In seconds
+	public static final int STARTING_TIME = 15; // In seconds
 	public static final int MIN_PLAYERS = 2;
 	public static final int MATERIAL_AMOUNT = 20;
 	public static final int POINTS_EGG = 5;

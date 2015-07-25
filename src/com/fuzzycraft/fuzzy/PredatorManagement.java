@@ -39,9 +39,9 @@ public class PredatorManagement implements Listener {
 	private PredatorLocation pl;
 	private TeleportPlayers tp;
 	private Material material;
-	private int eventTime, finishTime, lobbyTime, minPlayers, materialAmount, materialRemaining, pointsMaterial, pointsKill;
-	private boolean startTask, finishTask;
-	private boolean running = false;
+	private int runningTime, cleaningTime, startingTime, minPlayers, materialAmount, materialRemaining, pointsMaterial, pointsKill;
+	private Status status;
+	private boolean active = false;
 	private List<Player> scoreboardPlayers;
 	private HashMap<Player, Integer> playerMaterial = new HashMap<Player, Integer>();
 	private HashMap<Player, Integer> playerKills = new HashMap<Player, Integer>();
@@ -56,13 +56,17 @@ public class PredatorManagement implements Listener {
 		this.pl = new PredatorLocation(this.plugin, this.world);
 		this.tp = new TeleportPlayers(Predator.spawnWorld, this.world);
 		this.material = Defaults.MATERIAL;
-		this.eventTime = Defaults.EVENT_TIME;
-		this.finishTime = Defaults.FINISH_TIME;
-		this.lobbyTime = Defaults.LOBBY_TIME;
+		this.runningTime = Defaults.RUNNING_TIME;
+		this.cleaningTime = Defaults.CLEANING_TIME;
+		this.startingTime = Defaults.STARTING_TIME;
 		this.minPlayers = Defaults.MIN_PLAYERS;
 		this.materialAmount = Defaults.MATERIAL_AMOUNT;
 		this.pointsMaterial = Defaults.POINTS_EGG;
 		this.pointsKill = Defaults.POINTS_KILL;
+	}
+	
+	public enum Status {
+		STARTING, RUNNING, CLEANING;
 	}
 	
 	/**
@@ -73,11 +77,11 @@ public class PredatorManagement implements Listener {
 	public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
 		Player player = event.getPlayer();
 				
-		if (this.running || player.getWorld() != this.world) {
+		if (this.active || player.getWorld() != this.world) {
 			return;
 		}
 				
-		if (!this.startTask) {
+		if (this.status != Status.STARTING) {
 			this.tp.teleportPlayerToStart(player);
 		} else {
 			this.latePlayer(player);
@@ -103,7 +107,7 @@ public class PredatorManagement implements Listener {
 		Block block = event.getClickedBlock();
 		Player player = event.getPlayer();
 		
-		if (!this.finishTask || block.getWorld() != this.world) {
+		if (this.status != Status.RUNNING || block.getWorld() != this.world) {
 			return;
 		}
 
@@ -126,7 +130,7 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityDeath(EntityDeathEvent event) {
-        if (!this.finishTask || !(event.getEntity() instanceof Player) || event.getEntity().getWorld() != this.world) {
+        if (this.status != Status.RUNNING || !(event.getEntity() instanceof Player) || event.getEntity().getWorld() != this.world) {
             return;
         }
         
@@ -167,7 +171,7 @@ public class PredatorManagement implements Listener {
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
 		final Player player = event.getPlayer();
 		
-		if (!this.running) {		
+		if (!this.active) {		
 			if (player.getWorld() != this.world) {
 				return;
 			}
@@ -203,7 +207,7 @@ public class PredatorManagement implements Listener {
 	 */
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player && !this.finishTask && event.getDamager().getWorld() == this.world) {
+        if (event.getDamager() instanceof Player && this.status != Status.RUNNING && event.getDamager().getWorld() == this.world) {
             event.setCancelled(true);
         }
     }
@@ -226,8 +230,7 @@ public class PredatorManagement implements Listener {
 				this.setupPlayer(player);
 			}
 			
-			this.startTask = false;
-			this.finish();
+			this.run();
 			return;
 		}
 		
@@ -247,8 +250,7 @@ public class PredatorManagement implements Listener {
 				if (playersInWorld >= minPlayers) {
 					startTimer(newTimer);
 				} else {
-					startTask = false;
-					running = false;
+					active = false;
 					sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " " + ChatColor.GREEN + "Not enough players.");
 				}
 			}
@@ -260,11 +262,11 @@ public class PredatorManagement implements Listener {
 	 * Start the event.
 	 */
 	public void start() {
-		this.running = true;
+		this.active = true;
 		this.pl.removeAll(material);
-		this.sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game will start in " + ChatColor.GREEN + this.lobbyTime + " seconds!");		
-		this.startTask = true;
-		this.startTimer(this.lobbyTime);
+		this.sendMassMessage(this.world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game will start in " + ChatColor.GREEN + this.startingTime + " seconds!");		
+		this.status = Status.STARTING;
+		this.startTimer(this.startingTime);
 	}
 	
 	/**
@@ -272,7 +274,7 @@ public class PredatorManagement implements Listener {
 	 * @param player
 	 * @param cooldownTime
 	 */
-	public void finishTimer(int timer) {
+	public void runTimer(int timer) {
 		if (timer <= 0) {
 			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
 			
@@ -282,7 +284,6 @@ public class PredatorManagement implements Listener {
 				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + this.getWinner() + "!");
 			}
 			
-			this.finishTask = false;
 			this.clean();
 			return;
 		}
@@ -302,7 +303,7 @@ public class PredatorManagement implements Listener {
 		new BukkitRunnable() {
 		      
 			public void run() {
-				finishTimer(newTimer);
+				runTimer(newTimer);
 			}
 				
 		}.runTaskLater(this.plugin, 20);
@@ -311,25 +312,27 @@ public class PredatorManagement implements Listener {
 	/**
 	 * Finish event after evenTime and name winners.
 	 */
-	public void finish() {
-		this.finishTask = true;
-		this.finishTimer(this.eventTime);
+	public void run() {
+		this.status = Status.RUNNING;
+		this.runTimer(this.runningTime);
 	}
 	
 	/**
 	 * Clean up for next event.
 	 */
 	public void clean() {
+		this.status = Status.CLEANING;
+		
 		new BukkitRunnable() {
         	
 			public void run() {
 				sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " You are being teleported back to the hub...");
 				tp.teleportPlayersToSpawn(world.getPlayers());
 				pl.removeAll(material);
-				running = false;
+				active = false;
 			}
 			
-		}.runTaskLater(this.plugin, this.finishTime * 20);
+		}.runTaskLater(this.plugin, this.cleaningTime * 20);
 	}
 	
 	/**
