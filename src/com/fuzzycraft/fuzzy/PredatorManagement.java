@@ -34,6 +34,10 @@ import com.fuzzycraft.fuzzy.utilities.TeleportPlayers;
 
 public class PredatorManagement implements Listener {
 	
+	public enum Status {
+		STARTING, RUNNING, CLEANING;
+	}
+	
 	public Predator plugin;
 	private World world;
 	private PredatorLocation pl;
@@ -63,10 +67,6 @@ public class PredatorManagement implements Listener {
 		this.materialAmount = Defaults.MATERIAL_AMOUNT;
 		this.pointsMaterial = Defaults.POINTS_EGG;
 		this.pointsKill = Defaults.POINTS_KILL;
-	}
-	
-	public enum Status {
-		STARTING, RUNNING, CLEANING;
 	}
 	
 	/**
