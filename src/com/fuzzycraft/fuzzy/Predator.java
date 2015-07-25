@@ -18,7 +18,6 @@ public class Predator extends JavaPlugin {
 	public static World spawnWorld;
 	
 	private Predator plugin = this;
-	private PredatorManagement pm;
 	
 	public void onEnable() {				
 		new BukkitRunnable() {
