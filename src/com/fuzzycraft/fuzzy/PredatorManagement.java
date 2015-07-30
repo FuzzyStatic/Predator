@@ -43,7 +43,11 @@ public class PredatorManagement implements Listener {
 	private PredatorLocation pl;
 	private TeleportPlayers tp;
 	private Material material;
-	private int runningTime, cleaningTime, startingTime, minPlayers, materialAmount, materialRemaining, pointsMaterial, pointsKill;
+	private int runningTime, cleaningTime, startingTime, 
+				minPlayers, 
+				materialAmount, materialRemaining, 
+				pointsMaterial, pointsKill,
+				winGold;
 	private Status status;
 	private boolean active = false;
 	private List<Player> scoreboardPlayers;
@@ -67,6 +71,7 @@ public class PredatorManagement implements Listener {
 		this.materialAmount = Defaults.MATERIAL_AMOUNT;
 		this.pointsMaterial = Defaults.POINTS_EGG;
 		this.pointsKill = Defaults.POINTS_KILL;
+		this.winGold = Defaults.WIN_GOLD;
 	}
 	
 	/**
@@ -278,11 +283,15 @@ public class PredatorManagement implements Listener {
 		if (timer <= 0) {
 			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
 			
+			String winner = this.getWinner();
+			
 			// Show everyone their score
 			for (Player player : world.getPlayers()) {
 				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Your score is " + ChatColor.GREEN + this.getPlayerScore(player) + "!");
-				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + this.getWinner() + "!");
+				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + winner + "!");
 			}
+			
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "/fe grant " + winner + " " + this.winGold);
 			
 			this.clean();
 			return;
