@@ -283,15 +283,15 @@ public class PredatorManagement implements Listener {
 		if (timer <= 0) {
 			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
 			
-			String winner = this.getWinner();
+			Player winner = this.getWinner();
 			
 			// Show everyone their score
 			for (Player player : world.getPlayers()) {
 				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Your score is " + ChatColor.GREEN + this.getPlayerScore(player) + "!");
-				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + winner + "!");
+				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + winner.getDisplayName() + "!");
 			}
 			
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "fe grant " + winner + " " + this.winGold);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "fe grant " + winner.getName() + " " + this.winGold);
 			
 			this.clean();
 			return;
@@ -417,23 +417,23 @@ public class PredatorManagement implements Listener {
 	 * Return winner of the game.
 	 * @return
 	 */
-	public String getWinner() {
+	public Player getWinner() {
 		Player winner = null;
 		int winnerScore = 0;
 		
 		for (Player player : this.world.getPlayers()) {
-			if ((int) getPlayerScore(player) > winnerScore 
-					|| (
-							(int) getPlayerScore(player) == winnerScore 
-							&& this.playerMaterial.get(player) > this.playerMaterial.get(winner)
-						)
-				) {
+			if ((int) getPlayerScore(player) > winnerScore) {
+				winnerScore = getPlayerScore(player);
+				winner = player;
+			}
+			
+			if ((int) getPlayerScore(player) == winnerScore && this.playerMaterial.get(player) > this.playerMaterial.get(winner)) {
 				winnerScore = getPlayerScore(player);
 				winner = player;
 			}
 		}
 		
-		return winner.getDisplayName();
+		return winner;
 	}
 	
 	/**
