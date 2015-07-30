@@ -291,7 +291,7 @@ public class PredatorManagement implements Listener {
 				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + winner + "!");
 			}
 			
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "/fe grant " + winner + " " + this.winGold);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "fe grant " + winner + " " + this.winGold);
 			
 			this.clean();
 			return;
