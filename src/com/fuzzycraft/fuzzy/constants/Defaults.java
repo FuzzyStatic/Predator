@@ -14,7 +14,7 @@ public class Defaults {
 	public static final String[] GAME_WORLDS = {"predator-1", "predator-2", "predator-3", "predator-4"};
 	public static final int GAME_X = 1;
 	public static final int GAME_Y = 48;
-	public final static int GAME_Z = 0;
+	public static final int GAME_Z = 0;
 	public static final int MAX_X = 48;
 	public static final int MAX_Y = 60;
 	public static final int MAX_Z = 48;
