@@ -100,7 +100,7 @@ public class PredatorManagement implements Listener {
 	}
 	
 	/**
-	 * Give catcher random item when he catches catchee.
+	 * Check when player interacts with material.
 	 * @param event
 	 */
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
