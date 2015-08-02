@@ -2,6 +2,7 @@ package com.fuzzycraft.fuzzy;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -50,7 +51,7 @@ public class PredatorManagement implements Listener {
 				winGold;
 	private Status status;
 	private boolean active = false;
-	private List<Player> scoreboardPlayers;
+	private List<Player> scoreboardPlayers, tiedPlayers;
 	private HashMap<Player, Integer> playerMaterial = new HashMap<Player, Integer>();
 	private HashMap<Player, Integer> playerKills = new HashMap<Player, Integer>();
 		
@@ -418,22 +419,23 @@ public class PredatorManagement implements Listener {
 	 * @return
 	 */
 	public Player getWinner() {
-		Player winner = null;
+		this.tiedPlayers = null;
 		int winnerScore = 0;
 		
 		for (Player player : this.world.getPlayers()) {
 			if ((int) getPlayerScore(player) > winnerScore) {
 				winnerScore = getPlayerScore(player);
-				winner = player;
+				this.tiedPlayers.clear();
+				this.tiedPlayers.add(player);
 			}
 			
-			if ((int) getPlayerScore(player) == winnerScore && this.playerMaterial.get(player) > this.playerMaterial.get(winner)) {
+			if ((int) getPlayerScore(player) == winnerScore) {
 				winnerScore = getPlayerScore(player);
-				winner = player;
+				this.tiedPlayers.add(player);
 			}
 		}
 		
-		return winner;
+		return this.tiedPlayers.get(new Random().nextInt(this.tiedPlayers.size()));
 	}
 	
 	/**
