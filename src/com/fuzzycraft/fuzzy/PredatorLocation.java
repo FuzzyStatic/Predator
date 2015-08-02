@@ -69,7 +69,7 @@ public class PredatorLocation {
 	}
 	
 	/**
-	 * Spawn specified material at location.
+	 * Spawn specified player at location.
 	 */
 	public void spawnPlayer(Player player) {
 		boolean teleport = true;
