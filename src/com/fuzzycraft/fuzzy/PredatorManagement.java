@@ -419,7 +419,7 @@ public class PredatorManagement implements Listener {
 	 * @return
 	 */
 	public Player getWinner() {
-		this.tiedPlayers = null;
+		this.tiedPlayers.add(this.world.getPlayers().get(new Random().nextInt(this.world.getPlayers().size())));
 		int winnerScore = 0;
 		
 		for (Player player : this.world.getPlayers()) {
