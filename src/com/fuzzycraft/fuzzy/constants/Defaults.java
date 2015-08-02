@@ -29,7 +29,6 @@ public class Defaults {
 	public static final int MATERIAL_AMOUNT = 20;
 	public static final int POINTS_EGG = 5;
 	public static final int POINTS_KILL = 2;
-	public static final int WIN_GOLD = 50;
 	
 	public static final String SPAWN_WORLD = "world";
 	public static final int SPAWN_X = 0;
