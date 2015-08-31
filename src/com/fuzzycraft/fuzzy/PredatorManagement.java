@@ -7,6 +7,7 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -81,21 +82,34 @@ public class PredatorManagement implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
 		Player player = event.getPlayer();
+		int playersInWorld = this.world.getPlayers().size();
+		
+		if (player.getWorld() != this.world) {
+            return;
+        }
+		
+		// Set to spectator if too many players or game has started.
+		if (playersInWorld < this.minPlayers || this.status != Status.STARTING) {
+		    player.setGameMode(GameMode.SPECTATOR);
+		    this.tp.teleportPlayerToStart(player);
+		    return;
+        }
 				
-		if (this.active || player.getWorld() != this.world) {
+		if (this.active) {
 			return;
 		}
 		
 		this.clearPlayerBoard(player);
 				
+		/* Deprecated
 		if (this.status != Status.STARTING) {
 			this.tp.teleportPlayerToStart(player);
 		} else {
 			this.latePlayer(player);
 		}
+		*/
 				
-		int playersInWorld = this.world.getPlayers().size();
-				
+		// Start if minimum player requirement is met.
 		if (playersInWorld >= this.minPlayers) {
 			this.start();
 		}
@@ -377,6 +391,7 @@ public class PredatorManagement implements Listener {
 	 * Initialize maps of player.
 	 * @param map
 	 */
+	@Deprecated
 	public void latePlayer(Player player) {
 		if (this.playerMaterial.get(player) == null) {
 			this.playerMaterial.put(player, 0);
