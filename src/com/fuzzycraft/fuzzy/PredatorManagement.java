@@ -47,7 +47,7 @@ public class PredatorManagement implements Listener {
 	private TeleportPlayers tp;
 	private Material material;
 	private int runningTime, cleaningTime, startingTime, 
-				minPlayers, 
+	            maxPlayers, minPlayers, 
 				materialAmount, materialRemaining, 
 				pointsMaterial, pointsKill;
 	private Status status;
@@ -69,6 +69,7 @@ public class PredatorManagement implements Listener {
 		this.runningTime = Defaults.RUNNING_TIME;
 		this.cleaningTime = Defaults.CLEANING_TIME;
 		this.startingTime = Defaults.STARTING_TIME;
+		this.maxPlayers = Defaults.MAX_PLAYERS;
 		this.minPlayers = Defaults.MIN_PLAYERS;
 		this.materialAmount = Defaults.MATERIAL_AMOUNT;
 		this.pointsMaterial = Defaults.POINTS_EGG;
@@ -89,7 +90,7 @@ public class PredatorManagement implements Listener {
         }
 		
 		// Set to spectator if too many players or game has started.
-		if (playersInWorld < this.minPlayers || this.status != Status.STARTING) {
+		if (playersInWorld > this.maxPlayers || this.status != Status.STARTING) {
 		    player.setGameMode(GameMode.SPECTATOR);
 		    this.tp.teleportPlayerToStart(player);
 		    return;
