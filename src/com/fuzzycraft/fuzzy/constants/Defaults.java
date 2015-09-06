@@ -25,8 +25,8 @@ public class Defaults {
 	public static final int RUNNING_TIME = 120; // In seconds
 	public static final int CLEANING_TIME = 10; // In seconds
 	public static final int STARTING_TIME = 15; // In seconds
-	public static final int MIN_PLAYERS = 2;
 	public static final int MAX_PLAYERS = 10;
+	public static final int MIN_PLAYERS = 2;
 	public static final int MATERIAL_AMOUNT = 20;
 	public static final int POINTS_EGG = 5;
 	public static final int POINTS_KILL = 2;

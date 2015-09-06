@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fuzzycraft.fuzzy.constants.Defaults;
+import com.fuzzycraft.fuzzy.utilities.GamemodeChecker;
 
 /**
  * 
@@ -24,13 +25,15 @@ public class Predator extends JavaPlugin {
         	
 			public void run() {
 				spawnWorld = getServer().getWorld(Defaults.SPAWN_WORLD);
+				PluginManager manager = getServer().getPluginManager();
 				
 				for (String world : Defaults.GAME_WORLDS) {
 					World gameWorld = getServer().getWorld(world);
 					PredatorManagement pm = new PredatorManagement(plugin, gameWorld);
-					PluginManager manager = getServer().getPluginManager();
 					manager.registerEvents(pm, plugin);
 				}
+				
+				manager.registerEvents(new GamemodeChecker(), plugin);	
 			}
 			
 		}.runTaskLater(this, 1);

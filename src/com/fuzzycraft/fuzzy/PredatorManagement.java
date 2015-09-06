@@ -74,6 +74,8 @@ public class PredatorManagement implements Listener {
 		this.materialAmount = Defaults.MATERIAL_AMOUNT;
 		this.pointsMaterial = Defaults.POINTS_EGG;
 		this.pointsKill = Defaults.POINTS_KILL;
+		this.scoreboardPlayers = new ArrayList<Player>();
+		this.status = Status.STARTING;
 	}
 	
 	/**
@@ -85,13 +87,22 @@ public class PredatorManagement implements Listener {
 		Player player = event.getPlayer();
 		int playersInWorld = this.world.getPlayers().size();
 		
+		this.clearPlayerBoard(player);
+		
 		if (player.getWorld() != this.world) {
             return;
         }
 		
+		player.setGameMode(GameMode.SURVIVAL);
+		
+		if (this.scoreboardPlayers.contains(player)) {
+		    return;
+		}
+		
 		// Set to spectator if too many players or game has started.
 		if (playersInWorld > this.maxPlayers || this.status != Status.STARTING) {
 		    player.setGameMode(GameMode.SPECTATOR);
+		    setPlayerBoard(player);
 		    this.tp.teleportPlayerToStart(player);
 		    return;
         }
@@ -99,9 +110,7 @@ public class PredatorManagement implements Listener {
 		if (this.active) {
 			return;
 		}
-		
-		this.clearPlayerBoard(player);
-				
+						
 		/* Deprecated
 		if (this.status != Status.STARTING) {
 			this.tp.teleportPlayerToStart(player);
@@ -111,7 +120,7 @@ public class PredatorManagement implements Listener {
 		*/
 				
 		// Start if minimum player requirement is met.
-		if (playersInWorld >= this.minPlayers) {
+		if (playersInWorld >= this.minPlayers && this.status == Status.STARTING) {
 			this.start();
 		}
 	}
@@ -352,6 +361,7 @@ public class PredatorManagement implements Listener {
 	 */
 	public void clean() {
 		this.status = Status.CLEANING;
+		this.scoreboardPlayers.clear();
 		
 		new BukkitRunnable() {
         	
@@ -360,6 +370,7 @@ public class PredatorManagement implements Listener {
 				tp.teleportPlayersToSpawn(world.getPlayers());
 				pl.removeAll(material);
 				active = false;
+				status = Status.STARTING;
 			}
 			
 		}.runTaskLater(this.plugin, this.cleaningTime * 20);
