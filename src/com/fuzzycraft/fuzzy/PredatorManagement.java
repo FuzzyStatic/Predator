@@ -64,7 +64,7 @@ public class PredatorManagement implements Listener {
 		this.plugin = plugin;
 		this.world = world;
 		this.pl = new PredatorLocation(this.plugin, this.world);
-		this.tp = new TeleportPlayers(Predator.spawnWorld, this.world);
+		this.tp = new TeleportPlayers(this.world);
 		this.material = Defaults.MATERIAL;
 		this.runningTime = Defaults.RUNNING_TIME;
 		this.cleaningTime = Defaults.CLEANING_TIME;
@@ -79,7 +79,7 @@ public class PredatorManagement implements Listener {
 	}
 	
 	/**
-	 * Create board for joining player.
+	 * Setup player when joining game world.
 	 * @param event
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -102,7 +102,7 @@ public class PredatorManagement implements Listener {
 		// Set to spectator if too many players or game has started.
 		if (playersInWorld > this.maxPlayers || this.status != Status.STARTING) {
 		    player.setGameMode(GameMode.SPECTATOR);
-		    setPlayerBoard(player);
+		    setSpectatorPlayerBoard(player);
 		    this.tp.teleportPlayerToStart(player);
 		    return;
         }
@@ -447,6 +447,23 @@ public class PredatorManagement implements Listener {
 	}
 	
 	/**
+     * Create Scoreboard for player.
+     */
+    public void setSpectatorPlayerBoard(Player player) {
+        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective objective = board.registerNewObjective("timers", "dummy");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        objective.setDisplayName(ChatColor.DARK_PURPLE + "Eggs Left: " + ChatColor.GREEN + this.materialRemaining + ChatColor.WHITE + "/" + ChatColor.DARK_GREEN + this.materialAmount);
+        
+        for (Player participant : this.scoreboardPlayers) {
+            objective.getScore(participant.getName().toString()).setScore(getPlayerScore(participant));
+        }
+        
+        objective.getScore(player.getName().toString()).setScore(0);    
+        player.setScoreboard(board);
+    }
+	
+	/**
 	 * Clear Scoreboard for player.
 	 */
 	public void clearPlayerBoard(Player player) {
@@ -459,15 +476,15 @@ public class PredatorManagement implements Listener {
 	 * @return
 	 */
 	public Player getWinner() {
-		if (this.world.getPlayers().isEmpty()) {
+		if (this.scoreboardPlayers.isEmpty()) {
 			return null;
 		}
 		
 		List<Player> tiedPlayers = new ArrayList<Player>();
-		tiedPlayers.add(this.world.getPlayers().get(new Random().nextInt(this.world.getPlayers().size())));
+		tiedPlayers.add(this.scoreboardPlayers.get(new Random().nextInt(this.scoreboardPlayers.size())));
 		int winnerScore = 0;
 		
-		for (Player player : this.world.getPlayers()) {
+		for (Player player : this.scoreboardPlayers) {
 			if ((int) getPlayerScore(player) > winnerScore) {
 				winnerScore = getPlayerScore(player);
 				tiedPlayers.clear();

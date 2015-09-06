@@ -19,11 +19,11 @@ public class GamemodeChecker implements Listener {
      * @param plugin
      */
     public GamemodeChecker() {
-        this.world = Predator.spawnWorld;
+        this.world = Predator.spawn.getWorld();
     }
     
     /**
-     * Create board for joining player.
+     * Set gamemode for player at spawn.
      * @param event
      */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

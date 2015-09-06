@@ -1,3 +1,7 @@
 name:  Predator
 main:  com.fuzzycraft.fuzzy.Predator
-version:  1.0
+version:  1.2
+commands:
+   quit:
+      description: Quit game
+      permission: Predator.quit
