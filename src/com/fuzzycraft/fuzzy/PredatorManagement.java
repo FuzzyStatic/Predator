@@ -52,7 +52,7 @@ public class PredatorManagement implements Listener {
 				pointsMaterial, pointsKill;
 	private Status status;
 	private boolean active = false;
-	private List<Player> scoreboardPlayers;
+	private List<Player> scoreboardPlayers, spectators;
 	private HashMap<Player, Integer> playerMaterial = new HashMap<Player, Integer>();
 	private HashMap<Player, Integer> playerKills = new HashMap<Player, Integer>();
 		
@@ -75,6 +75,7 @@ public class PredatorManagement implements Listener {
 		this.pointsMaterial = Defaults.POINTS_EGG;
 		this.pointsKill = Defaults.POINTS_KILL;
 		this.scoreboardPlayers = new ArrayList<Player>();
+	    this.spectators = new ArrayList<Player>();
 		this.status = Status.STARTING;
 	}
 	
@@ -101,6 +102,7 @@ public class PredatorManagement implements Listener {
 		
 		// Set to spectator if too many players or game has started.
 		if (playersInWorld > this.maxPlayers || this.status != Status.STARTING) {
+		    spectators.add(player);
 		    player.setGameMode(GameMode.SPECTATOR);
 		    setSpectatorPlayerBoard(player);
 		    this.tp.teleportPlayerToStart(player);
@@ -149,10 +151,14 @@ public class PredatorManagement implements Listener {
 			this.materialRemaining--;
 		}
 		
-		// Update scoreboard.
-        for (Player participants : this.world.getPlayers()) {
+		// Update scoreboards
+        for (Player participants : this.scoreboardPlayers) {
         	this.setPlayerBoard(participants);
 		}
+        
+        for (Player spectator : this.spectators) {
+            this.setSpectatorPlayerBoard(spectator);
+        }
 	}
 	
 	/**
@@ -167,6 +173,10 @@ public class PredatorManagement implements Listener {
         
         Player player = (Player) event.getEntity();
         Player killer = null;
+        
+        if (!this.scoreboardPlayers.contains(player)) {
+            return;
+        }
         
         if (player.getKiller() instanceof Player) {
             killer = (Player) player.getKiller();
@@ -189,9 +199,13 @@ public class PredatorManagement implements Listener {
         }
                 
         // Update scoreboard.
-        for (Player participants : this.world.getPlayers()) {
+        for (Player participants : this.scoreboardPlayers) {
         	this.setPlayerBoard(participants);
 		}
+        
+        for (Player spectator : this.spectators) {
+            this.setSpectatorPlayerBoard(spectator);
+        }
     }
 	
 	/**

@@ -35,6 +35,8 @@ public class Defaults {
 	public static final int SPAWN_X = 0;
 	public static final int SPAWN_Y = 65;
 	public static final int SPAWN_Z = 0;
+	public static final float SPAWN_YAW = (float) -179.4;
+	public static final float SPAWN_PITCH = (float) -1.2;
 	
 	public static final String GAME_TAG = ChatColor.BLUE + "[" + ChatColor.DARK_RED + "PREDATOR" + ChatColor.BLUE + "]";
 }

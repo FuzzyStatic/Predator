@@ -3,5 +3,9 @@ main:  com.fuzzycraft.fuzzy.Predator
 version:  1.2
 commands:
    quit:
-      description: Quit game
+      description: Leave current game
       permission: Predator.quit
+permissions:
+   Predator.quit:
+     description: Access to /quit command
+     default: true

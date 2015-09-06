@@ -29,8 +29,10 @@ public class Predator extends JavaPlugin {
 				spawn = new Location(getServer().getWorld(Defaults.SPAWN_WORLD), 
 		                Defaults.SPAWN_X, 
 		                Defaults.SPAWN_Y, 
-		                Defaults.SPAWN_Z);
-				
+		                Defaults.SPAWN_Z,
+		                Defaults.SPAWN_YAW,
+		                Defaults.SPAWN_PITCH);
+								
 				PluginManager manager = getServer().getPluginManager();
 				
 				for (String world : Defaults.GAME_WORLDS) {
