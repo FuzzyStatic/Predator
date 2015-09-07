@@ -43,7 +43,7 @@ public class TeleportPlayers {
 	 */
 	public void teleportPlayersToSpawn(List<Player> players) {
 		for (Player player : players) {
-            player.setGameMode(GameMode.SURVIVAL);
+		    GameModeChecker.setSurvival(player);
 			player.setScoreboard(manager.getNewScoreboard());
 			player.teleport(this.spawn);
 		}

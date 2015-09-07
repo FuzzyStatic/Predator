@@ -77,7 +77,7 @@ public class PredatorManagement implements Listener {
 		this.scoreboardPlayers = new ArrayList<Player>();
 	    this.spectators = new ArrayList<Player>();
 		this.status = Status.STARTING;
-		this.refreshScoreboard();
+		//this.refreshScoreboard();
 	}
 	
 	/**
@@ -109,7 +109,16 @@ public class PredatorManagement implements Listener {
 		    }
 		    
 		    this.tp.teleportPlayerToStart(player);
-            this.updateScoreboards();
+		    
+		    // Spectators require delay for board.
+		    new BukkitRunnable() {
+	            
+	            public void run() {
+	                refreshScoreboard();
+	            }
+	            
+	        }.runTaskLater(this.plugin, 1);
+	        
 	        GameModeChecker.setSpectator(player);  
 		    return;
         }
@@ -535,6 +544,10 @@ public class PredatorManagement implements Listener {
 		}
 	}
 	
+	/**
+	 * Constantly refresh board.
+	 */
+	@Deprecated
 	public void refreshScoreboard() {
 	    new BukkitRunnable() {
 	        
@@ -543,6 +556,6 @@ public class PredatorManagement implements Listener {
 	            refreshScoreboard();
 	        }
 	        
-	    }.runTaskLater(this.plugin, 1);
+	    }.runTaskLater(this.plugin, 5);
 	}
 }
