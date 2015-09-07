@@ -7,6 +7,7 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -20,6 +21,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -77,6 +80,7 @@ public class PredatorManagement implements Listener {
 		this.scoreboardPlayers = new ArrayList<Player>();
 	    this.spectators = new ArrayList<Player>();
 		this.status = Status.STARTING;
+		this.refreshScoreboard();
 	}
 	
 	/**
@@ -103,13 +107,13 @@ public class PredatorManagement implements Listener {
 		
 		// Set to spectator if too many players or game has started.
 		if (playersInWorld > this.maxPlayers || this.status != Status.STARTING) {
-		    if (!spectators.contains(player)) {
-		        spectators.add(player);
+		    if (!this.spectators.contains(player)) {
+		        this.spectators.add(player);
 		    }
 		    
-		    GameModeChecker.setSpectator(player);  
-		    this.updateScoreboards();
 		    this.tp.teleportPlayerToStart(player);
+            this.updateScoreboards();
+	        GameModeChecker.setSpectator(player);  
 		    return;
         }
 				
@@ -144,7 +148,8 @@ public class PredatorManagement implements Listener {
 		Block block = event.getClickedBlock();
 		Player player = event.getPlayer();
 		
-		if (this.status != Status.RUNNING || block.getWorld() != this.world || this.playerMaterial.get(player) == null) {
+		if (this.status != Status.RUNNING || block.getWorld() != this.world 
+		        || this.playerMaterial.get(player) == null || !this.scoreboardPlayers.contains(player)) {
 			return;
 		}
 
@@ -255,7 +260,7 @@ public class PredatorManagement implements Listener {
 	        this.spectators.clear();
 			cleanHashMap(playerMaterial);
 			cleanHashMap(playerKills);
-			pl.spawnMaterial(material, materialAmount);
+			this.pl.spawnMaterial(material, materialAmount);
 			this.materialRemaining = this.materialAmount;
 			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.GREEN + " Game on!");
 				
@@ -310,21 +315,21 @@ public class PredatorManagement implements Listener {
 	 */
 	public void runTimer(int timer) {
 		if (timer <= 0) {
-			sendMassMessage(scoreboardPlayers, Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
-			sendMassMessage(spectators, Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over!");
+			sendMassMessage(this.scoreboardPlayers, Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
+			sendMassMessage(this.spectators, Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over!");
 			
 			Player winner = this.getWinner();
 			
+			if (winner != null) {
+			    String msg = Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + winner.getDisplayName() + "!";
+			    sendMassMessage(this.scoreboardPlayers, msg);
+	            sendMassMessage(this.spectators, msg);
+            }
+			
 			// Show everyone their score
-			for (Player player : scoreboardPlayers) {
+			for (Player player : this.scoreboardPlayers) {
 				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Your score is " + ChatColor.GREEN + this.getPlayerScore(player) + "!");				
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "fe grant " + player.getName() + " " + this.getPlayerScore(player));
-				
-				if (winner != null) {
-					player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Winner is " + ChatColor.GREEN + winner.getDisplayName() + "!");
-				}
-
-				this.clearPlayerBoard(player);
 			}
 				
 			this.clean();
@@ -402,7 +407,7 @@ public class PredatorManagement implements Listener {
 		player.setHealth((double) player.getMaxHealth());
 		player.getInventory().clear();
 		this.pl.spawnPlayer(player);
-		this.setPlayerBoard(player);
+        this.updateScoreboards();
 	}
 	
 	/**
@@ -531,5 +536,16 @@ public class PredatorManagement implements Listener {
 		} else {
 			return 0;
 		}
+	}
+	
+	public void refreshScoreboard() {
+	    new BukkitRunnable() {
+	        
+	        public void run() {
+	            updateScoreboards();
+	            refreshScoreboard();
+	        }
+	        
+	    }.runTaskLater(this.plugin, 1);
 	}
 }
