@@ -3,7 +3,6 @@ package com.fuzzycraft.fuzzy.utilities;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
