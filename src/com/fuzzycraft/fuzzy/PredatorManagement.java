@@ -77,7 +77,6 @@ public class PredatorManagement implements Listener {
 		this.scoreboardPlayers = new ArrayList<Player>();
 	    this.spectators = new ArrayList<Player>();
 		this.status = Status.STARTING;
-		//this.refreshScoreboard();
 	}
 	
 	/**
@@ -114,7 +113,7 @@ public class PredatorManagement implements Listener {
 		    new BukkitRunnable() {
 	            
 	            public void run() {
-	                refreshScoreboard();
+	                updateScoreboards();
 	            }
 	            
 	        }.runTaskLater(this.plugin, 1);
@@ -126,14 +125,6 @@ public class PredatorManagement implements Listener {
 		if (this.active) {
 			return;
 		}
-						
-		/* Deprecated
-		if (this.status != Status.STARTING) {
-			this.tp.teleportPlayerToStart(player);
-		} else {
-			this.latePlayer(player);
-		}
-		*/
 				
 		// Start if minimum player requirement is met.
 		if (playersInWorld >= this.minPlayers && this.status == Status.STARTING) {
@@ -462,24 +453,6 @@ public class PredatorManagement implements Listener {
 		
 		player.setScoreboard(board);
 	}
-	
-	/**
-     * Create Scoreboard for player.
-     */
-	@Deprecated
-    public void setSpectatorPlayerBoard(Player player) {
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective objective = board.registerNewObjective("timers", "dummy");
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setDisplayName(ChatColor.DARK_PURPLE + "Eggs Left: " + ChatColor.GREEN + this.materialRemaining + ChatColor.WHITE + "/" + ChatColor.DARK_GREEN + this.materialAmount);
-        
-        for (Player participant : this.scoreboardPlayers) {
-            objective.getScore(participant.getName().toString()).setScore(getPlayerScore(participant));
-        }
-        
-        objective.getScore(player.getName().toString()).setScore(0);    
-        player.setScoreboard(board);
-    }
     
     /**
      * Update all player scoreboards.
@@ -542,20 +515,5 @@ public class PredatorManagement implements Listener {
 		} else {
 			return 0;
 		}
-	}
-	
-	/**
-	 * Constantly refresh board.
-	 */
-	@Deprecated
-	public void refreshScoreboard() {
-	    new BukkitRunnable() {
-	        
-	        public void run() {
-	            updateScoreboards();
-	            refreshScoreboard();
-	        }
-	        
-	    }.runTaskLater(this.plugin, 5);
 	}
 }
