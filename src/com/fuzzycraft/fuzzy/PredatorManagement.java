@@ -7,7 +7,6 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -27,6 +26,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.fuzzycraft.fuzzy.constants.Defaults;
+import com.fuzzycraft.fuzzy.utilities.GameModeChecker;
 import com.fuzzycraft.fuzzy.utilities.TeleportPlayers;
 
 /**
@@ -94,17 +94,21 @@ public class PredatorManagement implements Listener {
             return;
         }
 		
-		player.setGameMode(GameMode.SURVIVAL);
+		GameModeChecker.setSurvival(player);
 		
 		if (this.scoreboardPlayers.contains(player)) {
+		    this.updateScoreboards();
 		    return;
 		}
 		
 		// Set to spectator if too many players or game has started.
 		if (playersInWorld > this.maxPlayers || this.status != Status.STARTING) {
-		    spectators.add(player);
-		    player.setGameMode(GameMode.SPECTATOR);
-		    setSpectatorPlayerBoard(player);
+		    if (!spectators.contains(player)) {
+		        spectators.add(player);
+		    }
+		    
+		    GameModeChecker.setSpectator(player);  
+		    this.updateScoreboards();
 		    this.tp.teleportPlayerToStart(player);
 		    return;
         }
@@ -151,14 +155,7 @@ public class PredatorManagement implements Listener {
 			this.materialRemaining--;
 		}
 		
-		// Update scoreboards
-        for (Player participants : this.scoreboardPlayers) {
-        	this.setPlayerBoard(participants);
-		}
-        
-        for (Player spectator : this.spectators) {
-            this.setSpectatorPlayerBoard(spectator);
-        }
+		this.updateScoreboards();
 	}
 	
 	/**
@@ -198,14 +195,7 @@ public class PredatorManagement implements Listener {
         	this.playerKills.put(killer, this.playerKills.get(killer) + 1);
         }
                 
-        // Update scoreboard.
-        for (Player participants : this.scoreboardPlayers) {
-        	this.setPlayerBoard(participants);
-		}
-        
-        for (Player spectator : this.spectators) {
-            this.setSpectatorPlayerBoard(spectator);
-        }
+        this.updateScoreboards();
     }
 	
 	/**
@@ -216,11 +206,12 @@ public class PredatorManagement implements Listener {
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
 		final Player player = event.getPlayer();
 		
+		if (player.getWorld() != this.world) {
+		    return;
+		}
+		
 		if (this.status != Status.RUNNING) {		
-			if (player.getWorld() != this.world) {
-				return;
-			}
-			
+		    
 			new BukkitRunnable() {
             	
     			public void run() {
@@ -232,10 +223,6 @@ public class PredatorManagement implements Listener {
         	return;
         }
 		
-		if (player.getWorld() != this.world) {
-			return;
-		}
-        
         // Respawn in game after death.
 		new BukkitRunnable() {
         	
@@ -264,6 +251,8 @@ public class PredatorManagement implements Listener {
 	 */
 	public void startTimer(int timer) {
 		if (timer <= 0) {
+		    this.scoreboardPlayers.clear();
+	        this.spectators.clear();
 			cleanHashMap(playerMaterial);
 			cleanHashMap(playerKills);
 			pl.spawnMaterial(material, materialAmount);
@@ -321,12 +310,13 @@ public class PredatorManagement implements Listener {
 	 */
 	public void runTimer(int timer) {
 		if (timer <= 0) {
-			sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
+			sendMassMessage(scoreboardPlayers, Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over! Thanks for playing!");
+			sendMassMessage(spectators, Defaults.GAME_TAG + ChatColor.DARK_RED + " Game is over!");
 			
 			Player winner = this.getWinner();
 			
 			// Show everyone their score
-			for (Player player : world.getPlayers()) {
+			for (Player player : scoreboardPlayers) {
 				player.sendMessage(Defaults.GAME_TAG + ChatColor.DARK_RED + " Your score is " + ChatColor.GREEN + this.getPlayerScore(player) + "!");				
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "fe grant " + player.getName() + " " + this.getPlayerScore(player));
 				
@@ -376,11 +366,13 @@ public class PredatorManagement implements Listener {
 	public void clean() {
 		this.status = Status.CLEANING;
 		this.scoreboardPlayers.clear();
+		this.spectators.clear();
 		
 		new BukkitRunnable() {
         	
 			public void run() {
 				sendMassMessage(world.getPlayers(), Defaults.GAME_TAG + ChatColor.DARK_RED + " You are being teleported back to the hub...");
+                GameModeChecker.setSurvivalAll(world.getPlayers());
 				tp.teleportPlayersToSpawn(world.getPlayers());
 				pl.removeAll(material);
 				active = false;
@@ -463,6 +455,7 @@ public class PredatorManagement implements Listener {
 	/**
      * Create Scoreboard for player.
      */
+	@Deprecated
     public void setSpectatorPlayerBoard(Player player) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective objective = board.registerNewObjective("timers", "dummy");
@@ -475,6 +468,19 @@ public class PredatorManagement implements Listener {
         
         objective.getScore(player.getName().toString()).setScore(0);    
         player.setScoreboard(board);
+    }
+    
+    /**
+     * Update all player scoreboards.
+     */
+    public void updateScoreboards() {
+        for (Player participants : this.scoreboardPlayers) {
+            this.setPlayerBoard(participants);
+        }
+        
+        for (Player spectator : this.spectators) {
+            this.setPlayerBoard(spectator);
+        }
     }
 	
 	/**

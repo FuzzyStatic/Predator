@@ -8,7 +8,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fuzzycraft.fuzzy.commands.Quit;
 import com.fuzzycraft.fuzzy.constants.Defaults;
-import com.fuzzycraft.fuzzy.utilities.GamemodeChecker;
+import com.fuzzycraft.fuzzy.utilities.GameModeChecker;
 
 /**
  * 
@@ -41,7 +41,7 @@ public class Predator extends JavaPlugin {
 					manager.registerEvents(pm, plugin);
 				}
 				
-				manager.registerEvents(new GamemodeChecker(), plugin);	
+				manager.registerEvents(new GameModeChecker(), plugin);	
 			}
 			
 		}.runTaskLater(this, 1);

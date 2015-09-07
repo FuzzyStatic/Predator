@@ -1,5 +1,8 @@
 package com.fuzzycraft.fuzzy.utilities;
 
+import java.util.List;
+
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -10,7 +13,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 
 import com.fuzzycraft.fuzzy.Predator;
 
-public class GamemodeChecker implements Listener {
+public class GameModeChecker implements Listener {
 
     private World world;
     
@@ -18,7 +21,7 @@ public class GamemodeChecker implements Listener {
      * Constructor.
      * @param plugin
      */
-    public GamemodeChecker() {
+    public GameModeChecker() {
         this.world = Predator.spawn.getWorld();
     }
     
@@ -31,7 +34,24 @@ public class GamemodeChecker implements Listener {
         Player player = event.getPlayer();        
         
         if (player.getWorld() == this.world) {
+            GameModeChecker.setSurvival(player);
+        }
+    }
+    
+    public static void setSurvival(Player player) {
+        player.setGameMode(GameMode.SURVIVAL);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gm 0 " + player.getName());
+    }
+    
+    public static void setSpectator(Player player) {
+        player.setGameMode(GameMode.SPECTATOR);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gm 3 " + player.getName());
+    }
+    
+    public static void setSurvivalAll(List<Player> players) {
+        for (Player player : players) {
             player.setGameMode(GameMode.SURVIVAL);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gm 0 " + player.getName());
         }
     }
 }
