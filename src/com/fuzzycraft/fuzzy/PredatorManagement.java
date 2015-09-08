@@ -408,28 +408,6 @@ public class PredatorManagement implements Listener {
 	}
 	
 	/**
-	 * Initialize maps of player.
-	 * @param map
-	 */
-	@Deprecated
-	public void latePlayer(Player player) {
-		if (this.playerMaterial.get(player) == null) {
-			this.playerMaterial.put(player, 0);
-		}
-		
-		if (this.playerKills.get(player) == null) {
-			this.playerKills.put(player, 0);
-		}
-		
-		this.scoreboardPlayers.add(player);
-		this.setupPlayer(player);
-		
-		for (Player participant : this.world.getPlayers()) {
-			this.setPlayerBoard(participant);
-		}
-	}
-	
-	/**
 	 * Send message to list of players
 	 */
 	public void sendMassMessage(List<Player> players, String msg) {
