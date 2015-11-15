@@ -19,7 +19,7 @@ import com.fuzzycraft.fuzzy.constants.Defaults;
 
 public class TeleportPlayers {
 	
-	public Location spawn;
+	public Location spawnLoc;
 	public Location start;
 	
 	public static final ScoreboardManager manager = Bukkit.getScoreboardManager();
@@ -29,7 +29,7 @@ public class TeleportPlayers {
 	 * @param plugin
 	 */
 	public TeleportPlayers(World gameWorld) {
-		this.spawn = Predator.spawn;
+		this.spawnLoc = Predator.spawnLoc;
 		this.start = new Location(gameWorld, 
 				Defaults.GAME_X, 
 				Defaults.GAME_Y, 
@@ -44,7 +44,7 @@ public class TeleportPlayers {
 		for (Player player : players) {
 		    GameModeChecker.setSurvival(player);
 			player.setScoreboard(manager.getNewScoreboard());
-			player.teleport(this.spawn);
+			player.teleport(this.spawnLoc);
 		}
 	}
 	

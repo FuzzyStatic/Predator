@@ -15,7 +15,7 @@ public class Quit implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
         if(commandLabel.equalsIgnoreCase(CMD)) {
             Player player = (Player) sender;
-            player.teleport(Predator.spawn);
+            player.teleport(Predator.spawnLoc);
         }
         
         return false;

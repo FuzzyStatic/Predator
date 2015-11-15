@@ -22,7 +22,7 @@ public class GameModeChecker implements Listener {
      * @param plugin
      */
     public GameModeChecker() {
-        this.world = Predator.spawn.getWorld();
+        this.world = Predator.spawnWorld;
     }
     
     /**
