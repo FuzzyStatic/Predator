@@ -8,8 +8,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import com.fuzzycraft.fuzzy.constants.Defaults;
-
 /**
  * 
  * @author FuzzyStatic (fuzzy@fuzzycraft.com)
@@ -18,23 +16,21 @@ import com.fuzzycraft.fuzzy.constants.Defaults;
 
 public class PredatorLocation {
 	
-	public Predator plugin;
-	public World world;
-	private int minX, maxX, minY, maxY, minZ, maxZ;
+    public static final int MAX_X = 48;
+    public static final int MAX_Y = 60;
+    public static final int MAX_Z = 48;
+    public static final int MIN_X = -48;
+    public static final int MIN_Y = 32;
+    public static final int MIN_Z = -48;
+    
+	private World world;
 
 	/**
 	 * Constructor.
 	 * @param plugin
 	 */
-	public PredatorLocation(Predator plugin, World world) {
-		this.plugin = plugin;
+	public PredatorLocation(World world) {
 		this.world = world;
-		this.minX = Defaults.MIN_X;
-		this.maxX = Defaults.MAX_X;
-		this.minY = Defaults.MIN_Y;
-		this.maxY = Defaults.MAX_Y;
-		this.minZ = Defaults.MIN_Z;
-		this.maxZ = Defaults.MAX_Z;
 	}
 
 	/**
@@ -43,9 +39,9 @@ public class PredatorLocation {
 	 */
 	public Location getRandomLocation() {
 		Random rand = new Random();
-		double x = rand.nextInt((this.maxX - this.minX) + 1) + this.minX; 
-		double y = rand.nextInt((this.maxY - this.minY) + 1) + this.minY; 
-		double z = rand.nextInt((this.maxZ - this.minZ) + 1) + this.minZ;
+		double x = rand.nextInt((MAX_X - MIN_X) + 1) + MIN_X; 
+		double y = rand.nextInt((MAX_Y - MIN_Y) + 1) + MIN_Y; 
+		double z = rand.nextInt((MAX_Z - MIN_Z) + 1) + MIN_Z;
 		return new Location(this.world, x, y, z);
 	}
 	
@@ -95,9 +91,9 @@ public class PredatorLocation {
 	 * Remove all of specified material from world.
 	 */
 	public void removeAll(Material material) {
-		for (double x = this.minX; x <= this.maxX; x++) {
-			for (double y = this.minY; y <= this.maxY; y++) {
-				for (double z = this.minZ; z <= this.maxZ; z++) {
+		for (double x = MIN_X; x <= MAX_X; x++) {
+			for (double y = MIN_Y; y <= MAX_Y; y++) {
+				for (double z = MIN_Z; z <= MAX_Z; z++) {
 					Location loc = new Location(this.world, x, y, z);
 					Block block = this.world.getBlockAt(loc);
 					

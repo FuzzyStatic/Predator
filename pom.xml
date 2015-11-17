@@ -10,8 +10,8 @@
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
 	</repositories>
-    <!--Spigot-API-->
     <dependencies>	
+        <!--Spigot-API-->
     	<dependency>
     	    <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>

@@ -60,9 +60,10 @@ public enum CustomEntityType {
     * Register our entities.
     */
     public static void registerEntities() {
-        for (CustomEntityType entity : values())
+        for (CustomEntityType entity : values()) {
             a(entity.getCustomClass(), entity.getName(), entity.getID());
-     
+        }
+        
         // BiomeBase#biomes became private.
         BiomeBase[] biomes;
         try {
@@ -76,7 +77,7 @@ public enum CustomEntityType {
                 break;
      
             // This changed names from J, K, L and M.
-            for (String field : new String[] { "as", "at", "au", "av" })
+            for (String field : new String[] { "at", "au", "av", "aw" }) {
                 try {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
@@ -84,13 +85,17 @@ public enum CustomEntityType {
                     List<BiomeMeta> mobList = (List<BiomeMeta>) list.get(biomeBase);
      
                     // Write in our custom class.
-                    for (BiomeMeta meta : mobList)
-                        for (CustomEntityType entity : values())
-                            if (entity.getNMSClass().equals(meta.b))
+                    for (BiomeMeta meta : mobList) {
+                        for (CustomEntityType entity : values()) {
+                            if (entity.getNMSClass().equals(meta.b)) {
                                 meta.b = entity.getCustomClass();
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
         }
     }
      
@@ -130,12 +135,14 @@ public enum CustomEntityType {
             // Unable to fetch.
             return;
         }
+        
         for (BiomeBase biomeBase : biomes) {
-            if (biomeBase == null)
+            if (biomeBase == null) {
                 break;
+            }
      
             // The list fields changed names but update the meta regardless.
-            for (String field : new String[] { "as", "at", "au", "av" })
+            for (String field : new String[] { "at", "au", "av", "aw" }) {
                 try {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
@@ -143,13 +150,17 @@ public enum CustomEntityType {
                     List<BiomeMeta> mobList = (List<BiomeMeta>) list.get(biomeBase);
      
                     // Make sure the NMS class is written back over our custom class.
-                    for (BiomeMeta meta : mobList)
-                        for (CustomEntityType entity : values())
-                            if (entity.getCustomClass().equals(meta.b))
+                    for (BiomeMeta meta : mobList) {
+                        for (CustomEntityType entity : values()) {
+                            if (entity.getCustomClass().equals(meta.b)) {
                                 meta.b = entity.getNMSClass();
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
         }
     }
      

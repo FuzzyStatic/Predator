@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.fuzzycraft.fuzzy.Predator;
-import com.fuzzycraft.fuzzy.constants.Defaults;
 
 /**
  * 
@@ -19,8 +18,12 @@ import com.fuzzycraft.fuzzy.constants.Defaults;
 
 public class TeleportPlayers {
 	
-	public Location spawnLoc;
-	public Location start;
+    public static final int GAME_X = 1;
+    public static final int GAME_Y = 48;
+    public static final int GAME_Z = 0;
+    
+	private Location spawnLoc;
+	private Location start;
 	
 	public static final ScoreboardManager manager = Bukkit.getScoreboardManager();
 		
@@ -31,9 +34,9 @@ public class TeleportPlayers {
 	public TeleportPlayers(World gameWorld) {
 		this.spawnLoc = Predator.spawnLoc;
 		this.start = new Location(gameWorld, 
-				Defaults.GAME_X, 
-				Defaults.GAME_Y, 
-				Defaults.GAME_Z);
+				GAME_X, 
+				GAME_Y, 
+				GAME_Z);
 	}
 	
 	/**
